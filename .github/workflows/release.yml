@@ -15,13 +15,18 @@ jobs:
             -   name: Checkout
                 uses: actions/checkout@v3
             
-            -   name: Install Appwrite CLI Polyfill
+            # -   name: Install Appwrite CLI Polyfill
+            #     shell: bash
+            #     working-directory: ./.polyfill
+            #     run: |
+            #       chmod +x appwrite.sh
+            #       ./appwrite.sh
+
+            -   name: Install Appwrite CLI
                 shell: bash
-                working-directory: ./.polyfill
                 run: |
-                  chmod +x appwrite.sh
-                  ./appwrite.sh
-            
+                    curl -sL https://appwrite.io/cli/install.sh | bash
+
             -   name: Appwrite Version
                 shell: bash
                 run: |
@@ -33,7 +38,7 @@ jobs:
                 working-directory: ./register
                 run: |
                     appwrite client \
-                    --endpoint='https://api.kbve.com/v1' \
+                    --endpoint='https://cloud.appwrite.io/v1' \
                     --projectId='64fb41b9418dcb632e73' \
                     --key='${{ secrets.APPWRITE_CLOUD }}'
 
