@@ -38,9 +38,9 @@ jobs:
                 working-directory: ./register
                 run: |
                     appwrite client \
-                    --endpoint='https://cloud.appwrite.io/v1' \
-                    --projectId='64fb41b9418dcb632e73' \
-                    --key='${{ secrets.APPWRITE_CLOUD }}'
+                    --endpoint='https://panel.appwrite.io/v1' \
+                    --projectId='kbve' \
+                    --key='${{ secrets.APPWRITE_PANEL }}'
 
                     appwrite functions createDeployment \
                     --functionId=register \
