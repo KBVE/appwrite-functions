@@ -38,7 +38,7 @@ jobs:
                     --key='${{ secrets.APPWRITE_CLOUD }}'
 
                     appwrite functions createDeployment \
-                    functionId='register' \
+                    functionId=register \
                     --entrypoint='index.js' \
-                    --code '.' \
+                    --code='.' \
                     --activate true
