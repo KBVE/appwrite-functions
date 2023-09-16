@@ -46,4 +46,4 @@ jobs:
                     --functionId=register \
                     --entrypoint='index.js' \
                     --code='.' \
-                    --activate true
+                    --activate=true
