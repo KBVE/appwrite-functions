@@ -1,5 +1,5 @@
 const sdk = require("node-appwrite");
-const axios = require("axios");
+const axios = require("axios").require;
 
 module.exports = async (req, res) => {
   const errorHandler = (__errorMessage) => {

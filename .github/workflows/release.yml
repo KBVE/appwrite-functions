@@ -27,11 +27,11 @@ jobs:
                 run: |
                     curl -sL https://appwrite.io/cli/install.sh | bash
 
-            -   name: Appwrite Version
-                shell: bash
-                run: |
-                    appwrite -v
-                    ls
+            # -   name: Appwrite Version
+            #     shell: bash
+            #     run: |
+            #         appwrite -v
+            #         ls
 
             -   name: Appwrite Deployment
                 shell: bash
