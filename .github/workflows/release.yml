@@ -1,0 +1,29 @@
+name: CI
+
+on:
+    push:
+        branches: ["main"]
+
+
+permissions: write-all
+
+
+jobs:
+    Deploy:
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v3
+            
+            -   name: Install Appwrite CLI Polyfill
+                shell: bash
+                working-directory: ./.polyfill
+                run: |
+                  chmod +x appwrite.sh
+                  ./appwrite.sh
+            
+            -   name: Appwrite Version
+                shell: bash
+                run: |
+                    appwrite -v
+                    ls
