@@ -1,7 +1,7 @@
-const sdk = require("node-appwrite");
-const axios = require("axios").require;
+import { Client, Databases, Users } from "node-appwrite";
+import axios from "axios";
 
-module.exports = async (req, res) => {
+export default async ({req, res}) => {
   const errorHandler = (__errorMessage) => {
     res.json({ data: "error", message: __errorMessage }, 400);
   };
@@ -10,7 +10,7 @@ module.exports = async (req, res) => {
     res.json({ data: _data }, 200);
   };
 
-  const client = new sdk.Client();
+  const client = new Client();
   if (
     !req.variables["APPWRITE_FUNCTION_ENDPOINT"] ||
     !req.variables["APPWRITE_FUNCTION_API_KEY"] ||
@@ -27,8 +27,8 @@ module.exports = async (req, res) => {
     //.setSelfSigned(true);
   }
 
-  const database = new sdk.Databases(client);
-  const users = new sdk.Users(client);
+  const database = new Databases(client);
+  const users = new Users(client);
   let request = "";
 
   if (req.payload) {
