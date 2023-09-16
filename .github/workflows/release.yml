@@ -27,3 +27,18 @@ jobs:
                 run: |
                     appwrite -v
                     ls
+
+            -   name: Appwrite Deployment
+                shell: bash
+                working-directory: ./register
+                run: |
+                    appwrite client \
+                    --endpoint='https://api.kbve.com/v1' \
+                    --projectId='64fb41b9418dcb632e73' \
+                    --key='${{ secrets.APPWRITE_CLOUD }}'
+
+                    appwrite functions createDeployment \
+                    functionId='register' \
+                    --entrypoint='index.js' \
+                    --code '.' \
+                    --activate true
