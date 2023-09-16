@@ -1,5 +1,4 @@
 import { Client, Databases, Users } from "node-appwrite";
-import axios from "axios";
 
 export default async ({req, res}) => {
   const errorHandler = (__errorMessage) => {
