@@ -1,5 +1,5 @@
 import { Client } from 'node-appwrite';
-//import axios from 'axios';
+import axios from 'axios';
 import { getStaticFile } from './utils.js';
 
 export default async ({ req, res, log, error }) => {
