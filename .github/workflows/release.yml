@@ -2,7 +2,7 @@ name: CI
 
 on:
     push:
-        branches: ["main"]
+        branches: ["master"]
 
 
 permissions: write-all
@@ -35,15 +35,16 @@ jobs:
 
             -   name: Appwrite Deployment
                 shell: bash
-                working-directory: ./register
+                working-directory: ./functions/register
                 run: |
                     appwrite client \
                     --endpoint='https://panel.appwrite.io/v1' \
                     --projectId='kbve' \
                     --key='${{ secrets.APPWRITE_PANEL }}'
 
-                    appwrite functions createDeployment \
-                    --functionId=register \
-                    --entrypoint='index.js' \
-                    --code='.' \
-                    --activate=true
+                    appwrite -v
+#                    appwrite functions createDeployment \
+#                    --functionId=register \
+#                    --entrypoint='index.js' \
+#                    --code='.' \
+#                    --activate=true
