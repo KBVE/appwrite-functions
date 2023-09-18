@@ -1,4 +1,4 @@
-import { Client, Databases } from 'node-appwrite';
+import { Client, Databases, Query, Users, ID } from 'node-appwrite';
 import axios from 'axios';
 import { getStaticFile } from './utils.js';
 import { verify } from 'hcaptcha';
@@ -12,7 +12,7 @@ export default async ({ req, res, log, error }) => {
 
   if (req.method === 'POST') {
     const client = new Client()
-      .setEndpoint('https://cloud.appwrite.io/v1')
+      .setEndpoint('https://panel.kbve.com/v1')
       .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
       .setKey(process.env.APPWRITE_API_KEY);
 
@@ -24,6 +24,7 @@ export default async ({ req, res, log, error }) => {
     const password = data['password'];
 
     let valid = false;
+    let user_id = "";
 
     const secret = process.env.HCAPTCHA_SECRET;
 
@@ -52,26 +53,74 @@ export default async ({ req, res, log, error }) => {
       );
     }
 
-    const database = new Databases(client);
+    if (password.length < 8) {
+      return res.json(
+        { ok: false, message: 'Password was too short and/or weak!' },
+        401
+      );
+    }
 
-    // Check if username is taken?
+    const db = new Databases(client);
+    const users = new Users(client);
+
     try {
       const { total } = await db.listDocuments('user', 'profile', [
         Query.equal('username', username),
       ]);
 
+      log(`Total : ${total}`);
+
       if (total > 0) {
         return res.json({ ok: false, message: 'Username is taken' }, 401);
       }
-    } catch (error) {
+    } catch (e) {
+      error(e);
       return res.json({ ok: false, message: 'Database Error' }, 401);
     }
 
-    return res.json({ ok: true, message: 'Yay! You are registered!' }, 200);
+    //?   Create Account
+
+    try {
+    const { $id } = await users.createArgon2User(ID.unique(), email, password, username);
+      if(!$id) {
+        return res.json({ ok: false, message: 'Account Failed' }, 401);
+      }
+      else {
+        user_id = $id;
+      }
+    }
+    catch (e) {
+      error(e);
+      return res.json({ ok: false, message: 'Account Error! Maybe you have an account?' }, 401);
+    }
+
+    //?   Create Profile
+
+    try {
+      const { $id } = await db.createDocument('user', 'profile', ID.unique(), {
+        username: username,
+        updatedAt: (new Date(Date.now())).toISOString(),
+        uuid: user_id
+    });
+    
+      if(!$id) {
+        return res.json({ ok: false, message: 'Profile $ID was not found?!' }, 401);
+      }
+      else {
+        return res.json({ ok: true, message: `Account Created! Welcome ${username}!` }, 401);
+      }
+    
+    }
+    catch (e) {
+      error(e);
+      return res.json({ ok: false, message: 'Profile Document Creation Error!' }, 401);
+    }
+    
+
   }
 
   return res.json({
     kbve: '/register/',
-    v: '1.17',
+    v: '1.18',
   });
 };
