@@ -11,7 +11,6 @@
     <!-- hCaptcha -->
     <script src="https://js.hcaptcha.com/1/api.js?" async defer></script>
 
-
     <script>
       tailwind.config = {
         theme: {
@@ -23,7 +22,6 @@
         },
       };
     </script>
-
   </head>
   <body
     class="text-base bg-[#0b0f0b] text-default selection:bg-yellow-600 selection:text-white"
@@ -359,7 +357,6 @@
     <!-- Modals - START -->
     <!-- Main modal -->
 
-    
     <!-- Main modal -->
     <div
       id="authentication-modal"
@@ -546,9 +543,7 @@
                     </svg>
                     <span class="sr-only">Fire icon</span>
                   </div>
-                  <div class="ml-3 text-sm font-normal">
-                    v1.0.16
-                  </div>
+                  <div class="ml-3 text-sm font-normal">v1.17</div>
                   <button
                     type="button"
                     class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700"
@@ -580,22 +575,18 @@
       </div>
     </div>
 
-    
     <!-- Register -->
     <script type="text/javascript">
-
       var pattern = /^[a-zA-Z0-9]*$/;
 
+      const message = document.querySelector('#message');
+      const form = document.querySelector('#register');
+      const load = document.querySelector('#load');
+      const email = document.querySelector('#email');
+      const username = document.querySelector('#username');
+      const password = document.querySelector('#password');
+      const confirm = document.querySelector('#confirm');
 
-        const message = document.querySelector('#message');
-        const form = document.querySelector('#register');
-        const load = document.querySelector('#load');
-        const email = document.querySelector('#email');
-        const username = document.querySelector('#username');
-        const password = document.querySelector('#password');
-        const confirm = document.querySelector('#confirm');
-
-      
       async function onError() {
         hcaptcha.reset();
       }
@@ -612,7 +603,8 @@
       }
 
       async function validateUser() {
-        message.textContent  = 'Processing Your Form Lord Commander. Hold Tight!';
+        message.textContent =
+          'Processing Your Form Lord Commander. Hold Tight!';
 
         hideForm();
         if (password.value != confirm.value) {
@@ -629,7 +621,7 @@
         } else {
           message.innerHTML = 'Sending Fetch!';
           const FData = JSON.stringify(Object.fromEntries(new FormData(form)));
-          console.log(FData);
+          //console.log(FData);
           try {
             const response = await fetch('https://register.kbve.com/', {
               method: 'POST',
@@ -640,18 +632,19 @@
             });
 
             const result = await response.json();
-            console.log('Success:', result);
-            message.innerHTML = JSON.stringify(result?.kbve);
-            form.style.opacity = 1;
-            load.style.display = 'none';
+
+            if (result?.ok) {
+              message.innerHTML = JSON.stringify(result?.message);
+              //showForm();
+            } else {
+              throw new Error(`!: ${result?.message}`);
+            }
           } catch (error) {
-            console.error('Error:', error);
-            message.innerHTML = JSON.stringify(error);
+            message.innerHTML = error;
             showForm();
           }
         }
       }
-    
     </script>
   </body>
 </html>

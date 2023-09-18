@@ -1,7 +1,7 @@
-import { Client } from 'node-appwrite';
+import { Client, Databases } from 'node-appwrite';
 import axios from 'axios';
 import { getStaticFile } from './utils.js';
-const { verify } = require('hcaptcha');
+import { verify } from 'hcaptcha';
 
 export default async ({ req, res, log, error }) => {
   if (req.method === 'GET') {
@@ -10,45 +10,68 @@ export default async ({ req, res, log, error }) => {
     });
   }
 
-  const client = new Client()
-    .setEndpoint('https://cloud.appwrite.io/v1')
-    .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
-    .setKey(process.env.APPWRITE_API_KEY);
+  if (req.method === 'POST') {
+    const client = new Client()
+      .setEndpoint('https://cloud.appwrite.io/v1')
+      .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
+      .setKey(process.env.APPWRITE_API_KEY);
 
-  //! Safety
+    const data = req.body;
 
-  const data = req.body;
+    const email = data['email'];
+    const token = data['h-captcha-response'];
+    const username = data['username'];
+    const password = data['password'];
 
-  const email = data['email'];
-  const token = data['h-captcha-response'];
-  const username = data['username'];
-  const password = data['password'];
+    let valid = false;
 
-  const secret = process.env.HCAPTCHA_SECRET;
+    const secret = process.env.HCAPTCHA_SECRET;
 
-  verify(secret, token)
-    .then((data) => {
-      if (data.success === true) {
-        log('Token was valid');
-      } else {
-        return res.json({ ok: false, error: '' }, 400);
+    const v = await verify(secret, token)
+      .then((data) => {
+        if (data.success === true) {
+          return true;
+        } else {
+          return false;
+        }
+      })
+      .catch((error) => {
+        return false;
+      });
+
+    if (!v) {
+      return res.json({ ok: false, message: 'Captcha Failed' }, 401);
+    }
+
+    const pattern = /^[a-zA-Z0-9]*$/;
+
+    if (!pattern.exec(username)) {
+      return res.json(
+        { ok: false, message: 'Username is not alpha-numeric' },
+        401
+      );
+    }
+
+    const database = new Databases(client);
+
+    // Check if username is taken?
+    try {
+      const { total } = await db.listDocuments('user', 'profile', [
+        Query.equal('username', username),
+      ]);
+
+      if (total > 0) {
+        return res.json({ ok: false, message: 'Username is taken' }, 401);
       }
-    })
-    .catch((error) => {
-      return res.json({ error: error }, 400);
-    });
+    } catch (error) {
+      return res.json({ ok: false, message: 'Database Error' }, 401);
+    }
 
-  
-
-  //log(`This is to see ${req.body?.email} Email`);
-  //log(`This is to see ${JSON.stringify(req.body)} B`);
-
-  log(`This is the email ${email}`);
-  log(`This is the token ${token}`);
-  log(`This is the username ${username}`);
+    return res.json({ ok: true, message: 'Yay! You are registered!' }, 200);
+  }
 
   return res.json({
-    kbve: 'Beep! Got your request buddy! oh pal!',
-    v: 'v1.0.16',
+    kbve: '/register/',
+    v: '1.17',
   });
 };
